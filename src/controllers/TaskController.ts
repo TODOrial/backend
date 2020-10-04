@@ -1,22 +1,21 @@
 import { Request, Response } from "express";
-import validator from "../helpers/validator";
+import { validator } from "../helpers";
 import { TaskModel } from "../models";
 
 export default class TaskController {
     static async index(req: Request, res: Response) {
-        // const offset: number = parseInt((req.query.offset || 0) as string);
-        // const limit: number = parseInt((req.query.limit || 10) as string);
+        const offset: number = parseInt((req.query.offset || 0) as string);
+        const limit: number = parseInt((req.query.limit || 10) as string);
 
-        // um dia isso sera paginado... um dia...
-        // const tasks = await TaskModel.find({}, null, { skip: offset, limit: limit }).catch(() => undefined);
+        const tasks = await TaskModel.find({}, null, { skip: offset, limit: limit }).catch(() => undefined);
 
-        const tasks = await TaskModel.find({}).catch(() => undefined);
+        // const tasks = await TaskModel.find({}).catch(() => undefined);
 
         const taskCount = await TaskModel.countDocuments();
 
         return res.send({
-            // offset,
-            // limit,
+            offset,
+            limit,
             last: taskCount,
             results: tasks,
         });
