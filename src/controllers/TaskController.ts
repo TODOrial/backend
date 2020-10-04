@@ -4,80 +4,100 @@ import { TaskModel } from "../models";
 
 export default class TaskController {
     static async index(req: Request, res: Response) {
-        const offset: number = parseInt((req.query.offset || 0) as string);
-        const limit: number = parseInt((req.query.limit || 10) as string);
+        try {
+            const offset: number = parseInt((req.query.offset || 0) as string);
+            const limit: number = parseInt((req.query.limit || 10) as string);
 
-        const tasks = await TaskModel.find({}, null, { skip: offset, limit: limit }).catch(() => undefined);
+            const tasks = await TaskModel.find({}, null, { skip: offset, limit: limit }).catch(() => undefined);
 
-        // const tasks = await TaskModel.find({}).catch(() => undefined);
+            // const tasks = await TaskModel.find({}).catch(() => undefined);
 
-        const taskCount = await TaskModel.countDocuments();
+            const taskCount = await TaskModel.countDocuments();
 
-        return res.send({
-            offset,
-            limit,
-            last: taskCount,
-            results: tasks,
-        });
+            return res.send({
+                offset,
+                limit,
+                last: taskCount,
+                results: tasks,
+            });
+        } catch (error) {
+            return res.status(400).send({ error: "Bad request!" });
+        }
     }
 
     static async show(req: Request, res: Response) {
-        const { id } = req.params;
+        try {
+            const { id } = req.params;
 
-        const task = await TaskModel.findById(id).catch(() => undefined);
+            const task = await TaskModel.findById(id).catch(() => undefined);
 
-        if (!task) {
-            return res.status(404).send({ error: "Task not found!" });
+            if (!task) {
+                return res.status(404).send({ error: "Task not found!" });
+            }
+
+            return res.send(task);
+        } catch (error) {
+            return res.status(400).send({ error: "Bad request!" });
         }
-
-        return res.send(task);
     }
 
     static async store(req: Request, res: Response) {
-        const validation = await validator.validate("task", req.body);
+        try {
+            const validation = await validator.validate("task", req.body);
 
-        if (!validation) {
-            return res.status(400).send({ error: validator.errorsText() });
+            if (!validation) {
+                return res.status(400).send({ error: validator.errorsText() });
+            }
+
+            const newTask = await TaskModel.create(req.body);
+
+            return res.send(newTask);
+        } catch (error) {
+            return res.status(400).send({ error: "Bad request!" });
         }
-
-        const newTask = await TaskModel.create(req.body);
-
-        return res.send(newTask);
     }
 
     static async update(req: Request, res: Response) {
-        const validation = await validator.validate("task", req.body);
+        try {
+            const validation = await validator.validate("task", req.body);
 
-        if (!validation) {
-            return res.status(400).send({ error: validator.errorsText() });
+            if (!validation) {
+                return res.status(400).send({ error: validator.errorsText() });
+            }
+
+            const { id } = req.params;
+
+            if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
+                return res.status(401).send({ error: "You cannot edit the sample task!" });
+            }
+
+            const updatedTask = await TaskModel.findOneAndUpdate({ _id: id }, req.body, { new: true }).catch(() => undefined);
+
+            if (!updatedTask) {
+                return res.status(404).send({ error: "Task not found!" });
+            }
+
+            return res.send(updatedTask);
+        } catch (error) {
+            return res.status(400).send({ error: "Bad request!" });
         }
-
-        const { id } = req.params;
-
-        if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
-            return res.status(401).send({ error: "You cannot edit the sample task!" });
-        }
-
-        const updatedTask = await TaskModel.findOneAndUpdate({ _id: id }, req.body, { new: true }).catch(() => undefined);
-
-        if (!updatedTask) {
-            return res.status(404).send({ error: "Task not found!" });
-        }
-
-        return res.send(updatedTask);
     }
 
     static async destroy(req: Request, res: Response) {
-        const { id } = req.params;
+        try {
+            const { id } = req.params;
 
-        if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
-            return res.status(401).send({ error: "You cannot delete the sample task!" });
+            if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
+                return res.status(401).send({ error: "You cannot delete the sample task!" });
+            }
+
+            await TaskModel.findByIdAndDelete(id).catch(() => {
+                return res.status(404).send({ error: "Task not found!" });
+            });
+
+            res.sendStatus(200);
+        } catch (error) {
+            return res.status(400).send({ error: "Bad request!" });
         }
-
-        await TaskModel.findByIdAndDelete(id).catch(() => {
-            return res.status(404).send({ error: "Task not found!" });
-        });
-
-        res.sendStatus(200);
     }
 }
