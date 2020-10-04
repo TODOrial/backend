@@ -104,7 +104,7 @@ export default class TaskController {
             const objectId = new ObjectId(id);
 
             if (objectId.equals(new ObjectId("5f794a8466714a001e7d6da7"))) {
-                return res.status(401).send({ error: "You cannot edit the sample task!" });
+                return res.status(401).send({ error: "You cannot delete the sample task!" });
             }
 
             await TaskModel.findByIdAndDelete(objectId).catch(() => {
