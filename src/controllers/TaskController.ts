@@ -55,7 +55,7 @@ export default class TaskController {
         const { id } = req.params;
 
         if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
-            return res.status(401).send({ error: "You cannot delete the sample task!" });
+            return res.status(401).send({ error: "You cannot edit the sample task!" });
         }
 
         const updatedTask = await TaskModel.findOneAndUpdate({ _id: id }, req.body, { new: true }).catch(() => undefined);
@@ -69,6 +69,10 @@ export default class TaskController {
 
     static async destroy(req: Request, res: Response) {
         const { id } = req.params;
+
+        if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
+            return res.status(401).send({ error: "You cannot delete the sample task!" });
+        }
 
         await TaskModel.findByIdAndDelete(id).catch(() => {
             return res.status(404).send({ error: "Task not found!" });
