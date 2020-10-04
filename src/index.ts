@@ -13,8 +13,10 @@ const { PORT, DB_USER, DB_PASSWORD } = process.env;
 
 const DB_URL = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.culqu.mongodb.net/${DB_USER}`;
 
+const DB_CONNECTION_CONFIG = { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true };
+
 // conexão com o banco de dados mongoose
-mongoose.connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
+mongoose.connect(DB_URL, DB_CONNECTION_CONFIG).then(() => {
     console.log(`MONGODB > Conectado ao banco: ${DB_URL}`);
 });
 
