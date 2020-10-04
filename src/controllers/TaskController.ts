@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
+
 import { validator } from "../helpers";
 import { TaskModel } from "../models";
+
+const { ObjectId } = Types;
 
 export default class TaskController {
     static async index(req: Request, res: Response) {
@@ -67,11 +71,17 @@ export default class TaskController {
 
             const { id } = req.params;
 
-            if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
+            if (!ObjectId.isValid(id)) {
+                return res.status(404).send({ error: "Task not found!" });
+            }
+
+            const objectId = new ObjectId(id);
+
+            if (objectId.equals(new ObjectId("5f794a8466714a001e7d6da7"))) {
                 return res.status(401).send({ error: "You cannot edit the sample task!" });
             }
 
-            const updatedTask = await TaskModel.findOneAndUpdate({ _id: id }, req.body, { new: true }).catch(() => undefined);
+            const updatedTask = await TaskModel.findOneAndUpdate({ _id: objectId }, req.body, { new: true }).catch(() => undefined);
 
             if (!updatedTask) {
                 return res.status(404).send({ error: "Task not found!" });
@@ -87,11 +97,17 @@ export default class TaskController {
         try {
             const { id } = req.params;
 
-            if (id.toLocaleLowerCase().indexOf("5f792cb23d9ff02ce40a7fe4".toLocaleLowerCase()) > -1) {
-                return res.status(401).send({ error: "You cannot delete the sample task!" });
+            if (!ObjectId.isValid(id)) {
+                return res.status(404).send({ error: "Task not found!" });
             }
 
-            await TaskModel.findByIdAndDelete(id).catch(() => {
+            const objectId = new ObjectId(id);
+
+            if (objectId.equals(new ObjectId("5f794a8466714a001e7d6da7"))) {
+                return res.status(401).send({ error: "You cannot edit the sample task!" });
+            }
+
+            await TaskModel.findByIdAndDelete(objectId).catch(() => {
                 return res.status(404).send({ error: "Task not found!" });
             });
 
