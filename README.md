@@ -2,6 +2,18 @@
 
 Task management application It allows users to manage their tasks.
 
+## Functionalities
+
+✔️ Read tasks
+
+✔️ Add tasks
+
+✔️ Edit tasks
+
+✔️ Delete tasks
+
+✔️ Change notifications
+
 ## Deployment in
 https://todorial.github.io
 
